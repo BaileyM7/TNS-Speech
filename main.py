@@ -60,12 +60,7 @@ def main(argv):
         if opt == "-p":
             production_run = True
         elif opt == "-t":
-            test_run = True
-    
-    # formatting the summary email to be sent
-    end_time = datetime.now()
-    elapsed = str(end_time - start_time).split('.')[0]
-    
+            test_run = True    
 
     if test_run:
         urls = parse_test_urls(test_input_path)
@@ -81,8 +76,11 @@ def main(argv):
                 continue
             insert_press_release(filename, headline, body, a_id)
 
-    
-        
+
+    # formatting the summary email to be sent
+    end_time = datetime.now()
+    elapsed = str(end_time - start_time).split('.')[0]
+
     summary = f"""
     Load Version 1.0.0 07/18/2025
 

@@ -72,13 +72,29 @@ def process_speeches(urls, is_test):
         # print(urls[n])
         
         if is_test:
-            prompt = "Create a Headline and a 300 word press release from the following speech. Add a newline after the headline."
+            prompt = (
+                "Write a headline and a 300-word press release based only on the content of the following speech.\n\n"
+                "Strictly follow these rules:\n"
+                "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
+                "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
+                "- DO NOT mention the city, state, or any location unless it is explicitly discussed in the speech itself.\n"
+                "- Focus only on the core message or argument made in the speech.\n"
+                "- Begin the output with the headline, followed by a newline, then the body."
+            )
         else:
-            prompt = f"Create a Headline for the speech that includes the agency name: {urls[n][2]} and a 300 word press release about the following speech. Add a newline after the headline."
+            prompt = (
+                f"Write a headline that includes the agency name: {urls[n][2]}, followed by a 300-word press release based only on the content of the following speech.\n\n"
+                "Strictly follow these rules:\n"
+                "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
+                "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
+                "- DO NOT mention the city, state, or any location unless it is explicitly discussed in the speech itself.\n"
+                "- Focus only on the core message or argument made in the speech.\n"
+                "- Begin the output with the headline, followed by a newline, then the body."
+            )
 
         response = client_sync.query_from_url(
             url= urls[n],
-            query="Create a Headline and a 300 word press release from the following speech. Add a newline after the headline.",
+            query=prompt,
             model='gpt-4o-mini',
             response_language="en",
             answer_type="text",
@@ -127,13 +143,8 @@ def process_speeches(urls, is_test):
 
 
 def write_press_releases_to_csv(output_path, data):
-    """
-    Writes speech processing results to a CSV with columns:
-    filename, headline, press_release
+    # Writes speech processing results to a CSV with columns
 
-    :param output_path: Path to write the CSV file to.
-    :param data: A list of (headline, press_release) tuples.
-    """
     with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['filename', 'headline', 'press_release'])
