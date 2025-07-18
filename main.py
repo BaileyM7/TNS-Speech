@@ -68,14 +68,26 @@ def main(argv):
         write_press_releases_to_csv(output_path, output)
 
     if production_run:
-        urls = get_121_speech_urls()
+        urls_preprocesses = get_121_speech_urls()
+        urls = []
+
+        # tallying skips based off of whether the loaders put urls properly into the coder for me to gather
+        for url in urls_preprocesses:
+            if "https://" in url:
+                urls.append(url)
+            else:
+                skipped += 1
+        
         outputs = process_speeches(urls, False)
         for filename, headline, body, a_id in outputs:
             if not filename or not headline or not body:
                 logging.warning("Skipping incomplete record.")
                 continue
-            insert_press_release(filename, headline, body, a_id)
 
+            if insert_press_release(filename, headline, body, a_id) == False:
+                dups += 1
+            else:
+                processed += 1
 
     # formatting the summary email to be sent
     end_time = datetime.now()
