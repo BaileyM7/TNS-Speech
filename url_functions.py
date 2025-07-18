@@ -71,25 +71,32 @@ def process_speeches(urls, is_test):
     for n in range(len(urls)):
         # print(urls[n])
         
+        # Shared formatting rules
+        rules = (
+            "Strictly follow these rules:\n"
+            "- Extract the speaker's full name, title, and full agency name from the speech text itself.\n"
+            "- The headline must include both the speaker's full name and the full name of their agency.\n"
+            "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
+            "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
+            "- DO NOT mention any city, state, or location unless it is explicitly discussed in the speech.\n"
+            "- The first sentence of the first paragraph must begin with this format (using real values, not copying this literally):\n"
+            "  '[Full Agency Name] [Speaker Title] [Speaker Full Name] issued the following statement'\n"
+            "  This sentence must blend naturally into the paragraph and **should not be isolated or formatted like a standalone news lead or dateline.**\n"
+            "- Continue the first paragraph immediately after the opening sentence, summarizing the key points of the speech in a clear and professional tone.\n"
+            "- Do not add line breaks or formatting after the opening sentence unless grammatically necessary.\n"
+            "- The output must begin with the headline, followed by a single newline, then the body."
+        )
+
         if is_test:
             prompt = (
                 "Write a headline and a 300-word press release based only on the content of the following speech.\n\n"
-                "Strictly follow these rules:\n"
-                "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
-                "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
-                "- DO NOT mention the city, state, or any location unless it is explicitly discussed in the speech itself.\n"
-                "- Focus only on the core message or argument made in the speech.\n"
-                "- Begin the output with the headline, followed by a newline, then the body."
+                f"{rules}"
             )
         else:
             prompt = (
-                f"Write a headline that includes the agency name: {urls[n][2]}, followed by a 300-word press release based only on the content of the following speech.\n\n"
-                "Strictly follow these rules:\n"
-                "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
-                "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
-                "- DO NOT mention the city, state, or any location unless it is explicitly discussed in the speech itself.\n"
-                "- Focus only on the core message or argument made in the speech.\n"
-                "- Begin the output with the headline, followed by a newline, then the body."
+                f"Write a headline that includes both the speaker's full name and their agency: {urls[n][2]}.\n\n"
+                "Then write a 300-word press release based only on the content of the following speech.\n\n"
+                f"{rules}"
             )
 
         response = client_sync.query_from_url(
@@ -117,7 +124,7 @@ def process_speeches(urls, is_test):
 
         today_date = get_body_date()
         press_release = f"WASHINGTON, {today_date} -- {body_raw.strip()}"
-        press_release += f"\n\n* * *\n\nView speech here: {urls[n]}."
+        press_release += f"\n\n* * *\n\nView speech here: {urls[n]}"
 
         # getting rid of stray input from gpt and turning all text into ASCII charectors for DB
         headline = clean_text(headline_raw)

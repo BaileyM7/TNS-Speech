@@ -79,6 +79,9 @@ def main(argv):
                 skipped += 1
         
         outputs = process_speeches(urls, False)
+
+        get_db_connection()
+        
         for filename, headline, body, a_id in outputs:
             if not filename or not headline or not body:
                 logging.warning("Skipping incomplete record.")
