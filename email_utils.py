@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from validate_email import validate_email
 
-def send_summary_email(msg_txt, logfile_path, to_addrs=None, from_addr="kmeek@targetednews.com", subject="Grants Scrape Summary: "):
+def send_summary_email(msg_txt, logfile_path, to_addrs=None, from_addr="kmeek@targetednews.com", subject="Speech Scrape Summary: "):
     smtp_server = "mail2.targetednews.com"
     port = 587
     sender_email = "kmeek@targetednews.com"

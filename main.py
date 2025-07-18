@@ -7,6 +7,7 @@ from openai import OpenAI
 from datetime import datetime
 from email_utils import send_summary_email
 from url_functions import getKey, parse_test_urls, process_speeches, write_press_releases_to_csv
+from db_functions import get_db_connection, get_121_speech_urls, insert_press_release
 
 """
 Author: Bailey Malota
@@ -40,6 +41,8 @@ def main(argv):
     # setting up email summary variable
     start_time = datetime.now()
     processed = 0
+    skipped = 0
+    dups = 0
     test_run = False
     production_run = False
     test_input_path = "test_urls.csv"
@@ -66,16 +69,28 @@ def main(argv):
 
     if test_run:
         urls = parse_test_urls(test_input_path)
-        output = process_speeches(urls)
+        output = process_speeches(urls, True)
         write_press_releases_to_csv(output_path, output)
 
+    if production_run:
+        urls = get_121_speech_urls()
+        outputs = process_speeches(urls, False)
+        for filename, headline, body, a_id in outputs:
+            if not filename or not headline or not body:
+                logging.warning("Skipping incomplete record.")
+                continue
+            insert_press_release(filename, headline, body, a_id)
 
+    
+        
     summary = f"""
     Load Version 1.0.0 07/18/2025
 
     Passed Parameters: {' -t' if test_run else ''} {' -p' if production_run else ''}
 
-    Grants Loaded: {processed}
+    Speches Loaded: {processed}
+    Duplicates Found: {dups}
+    Speeches Skipped: {skipped}
 
     Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}
     End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}

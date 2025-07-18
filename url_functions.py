@@ -63,13 +63,18 @@ def generate_filename(url):
     return f"$H {date}-speech-{clean_domain}"
 
 # proccesses each url and returns a header and body text
-def process_speeches(urls):
+def process_speeches(urls, is_test):
     client_sync = OpenperplexSync(getKey())
     outputs = []
 
     #sync
     for n in range(len(urls)):
-        print(urls[n])
+        # print(urls[n])
+        
+        if is_test:
+            prompt = "Create a Headline and a 300 word press release from the following speech. Add a newline after the headline."
+        else:
+            prompt = f"Create a Headline for the speech that includes the agency name: {urls[n][2]} and a 300 word press release about the following speech. Add a newline after the headline."
 
         response = client_sync.query_from_url(
             url= urls[n],
@@ -79,6 +84,7 @@ def process_speeches(urls):
             answer_type="text",
 
         )
+
         time.sleep(5)
         
         text = response.get("llm_response", "")
@@ -108,7 +114,10 @@ def process_speeches(urls):
         filename = generate_filename(urls[n])
 
         # append headline, press_release
-        outputs.append((filename, headline, press_release))
+        if is_test:
+            outputs.append((filename, headline, press_release))
+        else:
+            outputs.append((filename, headline, press_release, urls[n][1]))
 
         # print(headline)
         # print(press_release)
