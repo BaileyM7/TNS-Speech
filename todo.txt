@@ -1,0 +1,4 @@
+1. Add a checker helper function that flags outputs for any malformed output
+    1a. this could include the output having things like "full agency name"
+    instead of actually subbing in the agency name
+    1b. Tag the malformed outputs and send them to box 4 instead

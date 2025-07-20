@@ -272,5 +272,5 @@ def clean_text(text):
     text = re.sub(r'""', '"', text)
     text = re.sub(r'###', '', text)
     text = text.replace("[NEWLINE SEPARATOR]", "")
-    text = text.strip().replace('\"', "").replace('Headline:', "").replace('headline:', "").replace('[', "").replace(']', "")
+    text = text.strip().replace('\"', "").replace('Headline:', "").replace('headline:', "").replace('[', "").replace(']', "").replace('Mr. ', "").replace('Mrs. ', "").replace('Ms. ', "").replace('Dr. ', "")
     return text

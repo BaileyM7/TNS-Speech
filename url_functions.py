@@ -67,26 +67,30 @@ def process_speeches(urls, is_test):
     client_sync = OpenperplexSync(getKey())
     outputs = []
 
-    #sync
+    # shared formatting rules 
+    rules = (
+        "Strictly follow these rules:\n"
+        "- Extract the speaker's full name, title, and full agency name from the speech text itself.\n"
+        "- The headline must include both the speaker's full name and the full name of their agency.\n"
+        "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
+        "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
+        "- DO NOT mention any city, state, or location unless it is explicitly discussed in the speech.\n"
+        "- Abbreviate 'United States' as 'U.S.' unless part of a formal name.\n"
+        "- DO NOT use honorifics like 'Mr.', 'Mrs.', 'Ms.', or 'Dr.' before any person's name.\n"
+        "- The first sentence of the first paragraph must begin with this format (using real values, not copying this literally):\n"
+        "  '[Full Agency Name] [Speaker Title] [Speaker Full Name] issued the following statement'\n"
+        "  This sentence must blend naturally into the paragraph and **should not be isolated or formatted like a standalone news lead or dateline.**\n"
+        "- Continue the first paragraph immediately after the opening sentence, summarizing the key points of the speech in a clear and professional tone.\n"
+        "- The first paragraph should contain the only introductory reference to the speaker. Do not mention the speaker again in later paragraphs.\n"
+        "- Include **two to three paragraphs** in total, and each paragraph must contain at least one **direct quote** from the speech.\n"
+        "- Do not add line breaks or formatting after the opening sentence unless grammatically necessary.\n"
+        "- The output must begin with the headline, followed by a single newline, then the body."
+    )
+
+    # calling gpt api on each speech
     for n in range(len(urls)):
         # print(urls[n])
         
-        # Shared formatting rules
-        rules = (
-            "Strictly follow these rules:\n"
-            "- Extract the speaker's full name, title, and full agency name from the speech text itself.\n"
-            "- The headline must include both the speaker's full name and the full name of their agency.\n"
-            "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
-            "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
-            "- DO NOT mention any city, state, or location unless it is explicitly discussed in the speech.\n"
-            "- The first sentence of the first paragraph must begin with this format (using real values, not copying this literally):\n"
-            "  '[Full Agency Name] [Speaker Title] [Speaker Full Name] issued the following statement'\n"
-            "  This sentence must blend naturally into the paragraph and **should not be isolated or formatted like a standalone news lead or dateline.**\n"
-            "- Continue the first paragraph immediately after the opening sentence, summarizing the key points of the speech in a clear and professional tone.\n"
-            "- Do not add line breaks or formatting after the opening sentence unless grammatically necessary.\n"
-            "- The output must begin with the headline, followed by a single newline, then the body."
-        )
-
         if is_test:
             prompt = (
                 "Write a headline and a 300-word press release based only on the content of the following speech.\n\n"
