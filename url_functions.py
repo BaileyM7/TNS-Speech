@@ -62,6 +62,23 @@ def generate_filename(url):
 
     return f"$H {date}-speech-{clean_domain}"
 
+
+# checks the output from ai prompt to look for malformed outputs containing peices of the original prompt
+def check_news_output(output):
+    # parts of the prompt that shoulve been replaces
+    forbidden_phrases = ["full agency name","speaker title","speaker full name", "agency name"]
+    
+    # making the output lwocase to make sure case sensitivity doesnt matter
+    output_lower = output.lower()
+    
+    # return fasle if output isnt correct
+    for phrase in forbidden_phrases:
+        if phrase in output_lower:
+            return False
+    
+    return True
+
+
 # proccesses each url and returns a header and body text
 def process_speeches(urls, is_test):
     client_sync = OpenperplexSync(getKey())
@@ -69,22 +86,22 @@ def process_speeches(urls, is_test):
 
     # shared formatting rules 
     rules = (
-        "Strictly follow these rules:\n"
-        "- Extract the speaker's full name, title, and full agency name from the speech text itself.\n"
-        "- The headline must include both the speaker's full name and the full name of their agency.\n"
-        "- DO NOT include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact names or emails.\n"
-        "- DO NOT include datelines like 'Washington, D.C.' or dates at the top.\n"
-        "- DO NOT mention any city, state, or location unless it is explicitly discussed in the speech.\n"
-        "- Abbreviate 'United States' as 'U.S.' unless part of a formal name.\n"
-        "- DO NOT use honorifics like 'Mr.', 'Mrs.', 'Ms.', or 'Dr.' before any person's name.\n"
-        "- The first sentence of the first paragraph must begin with this format (using real values, not copying this literally):\n"
-        "  '[Full Agency Name] [Speaker Title] [Speaker Full Name] issued the following statement'\n"
-        "  This sentence must blend naturally into the paragraph and **should not be isolated or formatted like a standalone news lead or dateline.**\n"
-        "- Continue the first paragraph immediately after the opening sentence, summarizing the key points of the speech in a clear and professional tone.\n"
-        "- The first paragraph should contain the only introductory reference to the speaker. Do not mention the speaker again in later paragraphs.\n"
-        "- Include **two to three paragraphs** in total, and each paragraph must contain at least one **direct quote** from the speech.\n"
-        "- Do not add line breaks or formatting after the opening sentence unless grammatically necessary.\n"
-        "- The output must begin with the headline, followed by a single newline, then the body."
+        "Follow these instructions exactly:\n"
+        "- Read the speech and extract the speaker's **full name**, **official title**, and the **full name of the agency they represent**.\n"
+        "- Use this information to create the first sentence of the first paragraph using this format (with real values):\n"
+        "  '[Agency Name] [Title] [Full Name] issued the following statement'\n"
+        "- Do not copy or include placeholder text like 'Full Name' or 'Full Agency Name'. Use the real values from the speech.\n"
+        "- The **headline** must include the speaker’s full name and the **abbreviated form of the agency name** (e.g., 'SEC' instead of 'Securities and Exchange Commission').\n"
+        "- Do not include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact information.\n"
+        "- Do not add datelines (e.g., 'Washington, D.C.') or dates at the top.\n"
+        "- Do not mention a city, state, or location unless it is specifically referenced in the speech content.\n"
+        "- Abbreviate 'United States' as 'U.S.' unless part of an official name.\n"
+        "- The opening sentence must blend naturally into the first paragraph. Do not isolate it or format it like a title or header.\n"
+        "- Continue the paragraph with a summary of the key speech points in a professional tone.\n"
+        "- The speaker should only be referenced in the first paragraph. Do not repeat their name or title later.\n"
+        "- Write a total of **two to three paragraphs**, and each paragraph must contain at least one **direct quote** from the speech.\n"
+        "- Do not insert extra line breaks after the first sentence unless grammatically necessary.\n"
+        "- The output must begin with the **headline**, followed by **one newline**, then the full body text."
     )
 
     # calling gpt api on each speech
@@ -120,7 +137,8 @@ def process_speeches(urls, is_test):
         if len(parts) != 2:
             # TODO: ADD LOG MESSAGE HERE
             logging.info(f"Headline Wasnt Parsed Right")
-            outputs.append((None, None)) 
+            outputs.append((None, None, None)) 
+            continue
 
         # getting both the headline and body
         headline_raw = parts[0]
@@ -140,11 +158,18 @@ def process_speeches(urls, is_test):
         # making the filename for the speeches
         filename = generate_filename(urls[n])
 
-        # append headline, press_release
-        if is_test:
-            outputs.append((filename, headline, press_release))
+        # checking to make sure that output is correct
+        if check_news_output(press_release) and check_news_output(headline):
+            
+            # append headline, press_release
+            if is_test:
+                outputs.append((filename, headline, press_release))
+            else:
+                outputs.append((filename, headline, press_release, urls[n][1]))
+
+        # if output is invalid, add none none none so that it is counted as skipped in summary email
         else:
-            outputs.append((filename, headline, press_release, urls[n][1]))
+            outputs.append((None, None, None))
 
         # print(headline)
         # print(press_release)

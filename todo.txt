@@ -1,4 +1,28 @@
-1. Add a checker helper function that flags outputs for any malformed output
-    1a. this could include the output having things like "full agency name"
-    instead of actually subbing in the agency name
-    1b. Tag the malformed outputs and send them to box 4 instead
+2. IF check_news_output fails, send to box 4
+
+TODO:
+Things To Change:
+ Make sure that the model is getting the correct agency name. 
+ Get quotes. 
+ Make it around 3 paragraphs. 
+ 300-words
+ Make it so that it gathers the org name from the tns coder. 
+ FORMAT: [Organization] [Title] [person]: press release starts here
+
+EXAMPLE HERE 
+
+U.S. Consumer Product Safety Commission Chair Alex Hoehn-Saric issued 
+the following statement: Then bla bla bla whatever it interprets.
+
+
+
+Sometimes urls come in like this:
+
+parse by //
+
+
+https://www.fcc.gov/document/fcc-clearing-way-faster-network-upgrades/carr-statement-0
+//https://www.fcc.gov/document/fcc-adopts-rules-requiring-georouting-texts-988/carr-statement-0
+//https://www.fcc.gov/document/fcc-aims-remove-barriers-broadband-deployment-and-investment/carr-statement-0
+//https://www.fcc.gov/document/fcc-updates-bidding-rules-aws-3-inventory-auction/carr-statement-0
+//https://www.fcc.gov/document/fcc-re-evaluate-its-slamming-and-truth-billing-rules/carr-statement-0
