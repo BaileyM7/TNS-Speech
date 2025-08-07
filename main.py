@@ -6,7 +6,7 @@ import logging
 from openai import OpenAI
 from datetime import datetime
 from email_utils import send_summary_email
-from url_functions import getKey, parse_test_urls, process_speeches, write_press_releases_to_csv
+from url_functions import getKey, parse_csv, process_speeches, write_press_releases_to_csv
 from db_functions import get_db_connection, get_121_speech_urls, insert_press_release
 
 """
@@ -75,8 +75,8 @@ def main(argv):
             test_run = True    
 
     if test_run:
-        urls = parse_test_urls(test_input_path)
-        output = process_speeches(urls, True)
+        results = parse_csv(test_input_path)
+        output = process_speeches(results, True)
         write_press_releases_to_csv(output_path, output)
 
     if production_run:
@@ -111,7 +111,7 @@ def main(argv):
     elapsed = str(end_time - start_time).split('.')[0]
 
     summary = f"""
-    Load Version 1.0.3 08/5/2025
+    Load Version 1.0.4 08/7/2025
 
     Passed Parameters: {' -t' if test_run else ''} {' -p' if production_run else ''}
 

@@ -23,6 +23,42 @@ def getKey():
     except IOError as e:
         logging.info(f"An I/O error occurred: {e}")
 
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme in ("http", "https"), result.netloc])
+    except:
+        return False
+
+def extract_clean_agency_name(raw_name):
+    match = re.match(r"^(.*?)(\[|\(|:|$)", raw_name.strip())
+    return match.group(1).strip() if match else raw_name.strip()
+
+def parse_csv(file_path):
+    results = []
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile, skipinitialspace=True)
+
+        # Strip leading/trailing whitespace from header field names
+        reader.fieldnames = [field.strip() for field in reader.fieldnames]
+
+        for row in reader:
+            raw_agency = row.get('AgencyName', '').strip()
+            author = row.get('Author', '').strip()
+            url = row.get('Url', '').strip()
+
+            if not author or author.upper() == 'NA':
+                results.append((None, None, None))
+                continue
+
+            if not is_valid_url(url):
+                results.append((None, None, None))
+                continue
+
+            agency = extract_clean_agency_name(raw_agency)
+            results.append((agency, author, url))
+
+    return results
 
 # makes the date that goes after "WASHINGTON --"
 def get_body_date():
@@ -32,18 +68,6 @@ def get_body_date():
     formatted_month = month if len(month) <= 5 else short_month + "."
     day_format = '%-d' if platform.system() != 'Windows' else '%#d'
     return f"{formatted_month} {today.strftime(day_format)}"
-
-
-# ran when -t is passed. This will scrape all the urls in the test file like they would come from the DB    
-def parse_test_urls(path):
-    urls = []
-    # opens csv
-    with open(path, 'r', encoding='utf-8') as file:
-        # only adds urls to the list
-        for line in file:
-            if "https://" in line:
-                urls.append(line.strip())
-    return urls
 
 def generate_filename(url):
     """
@@ -80,64 +104,77 @@ def check_news_output(output):
 
 
 # proccesses each url and returns a header and body text
-def process_speeches(urls, is_test):
+def process_speeches(results, is_test):
+    from openperplex import OpenperplexSync  # Assuming this is your client
     client_sync = OpenperplexSync(getKey())
     outputs = []
 
-    # shared formatting rules 
-    rules = (
-        "Follow these instructions exactly:\n"
-        "- Read the speech and extract the speaker's **full name**, **official title**, and the **full name of the agency they represent**.\n"
-        "- Use this information to create the first sentence of the first paragraph using this format (with real values):\n"
-        "  '[Agency Name] [Title] [Full Name] issued the following statement'\n"
-        "- Do not copy or include placeholder text like 'Full Name' or 'Full Agency Name'. Use the real values from the speech.\n"
-        "- The **headline** must include the speaker’s full name and the **abbreviated form of the agency name** (e.g., 'SEC' instead of 'Securities and Exchange Commission').\n"
-        "- Do not include any introductory lines such as 'FOR IMMEDIATE RELEASE', 'CONTACT', or press contact information.\n"
-        "- Do not add datelines (e.g., 'Washington, D.C.') or dates at the top.\n"
-        "- Do not mention a city, state, or location unless it is specifically referenced in the speech content.\n"
-        "- Abbreviate 'United States' as 'U.S.' unless part of an official name.\n"
-        "- The opening sentence must blend naturally into the first paragraph. Do not isolate it or format it like a title or header.\n"
-        "- Continue the paragraph with a summary of the key speech points in a professional tone.\n"
-        "- The speaker should only be referenced in the first paragraph. Do not repeat their name or title later.\n"
-        "- Write a total of **two to three paragraphs**, and each paragraph must contain at least one **direct quote** from the speech.\n"
-        "- Do not insert extra line breaks after the first sentence unless grammatically necessary.\n"
-        "- The output must begin with the **headline**, followed by **one newline**, then the full body text."
-    )
+    # Process each (agency, author, url) tuple
+    for agency, author, url in results:
+        if not agency or not author or not url:
+            continue  # Skip invalid entries
 
-    # calling gpt api on each speech
-    for n in range(len(urls)):
-        # print(urls[n])
-        
-        if is_test:
-            prompt = (
-                "Write a headline and a 300-word press release based only on the content of the following speech.\n\n"
-                f"{rules}"
+        # Dynamically insert agency and author into the rules for better grounding
+        prompt = f"""
+        Write a 300-word press release based on a speech delivered by {author} from {agency}. Follow these rules:
+
+        Headline:
+        - Write a single-line headline.
+        - It must include the speaker’s full name and the **abbreviated agency name** (e.g., "SEC" instead of "Securities and Exchange Commission").
+
+        Press Release Body:
+        - The first sentence must begin exactly like this (replacing with the real values):
+        “{agency}'s {author} issued the following statement,”
+        - This sentence must **flow directly into the paragraph**, not be isolated on its own line.
+        - Do NOT include any introductory lines such as “FOR IMMEDIATE RELEASE,” “CONTACT,” or press contact info.
+        - Do NOT include any datelines like “Washington, D.C.” or any location unless it appears in the speech.
+        - Abbreviate “United States” as “U.S.” unless it is part of an official name.
+        - After the first sentence, summarize the speech’s key points clearly and professionally.
+        - The speaker may only be named in the first paragraph.
+
+        - Write two to three structured paragraphs total.
+        - Each paragraph must include at least one **direct quote** from the speech.
+        - Do not reuse the speaker’s name or title after the first sentence.
+        - Maintain a clean, professional tone and avoid bullet points, headers, or section labels.
+
+        Input Information:
+        Speaker Name: {author}
+        Agency: {agency}
+        """
+
+        try:
+            response = client_sync.query_from_url(
+                url=url,
+                query=prompt,
+                model='gpt-4o-mini',
+                response_language="en",
+                answer_type="text",
             )
-        else:
-            prompt = (
-                f"Write a headline that includes both the speaker's full name and their agency: {urls[n][2]}.\n\n"
-                "Then write a 300-word press release based only on the content of the following speech.\n\n"
-                f"{rules}"
-            )
 
-        response = client_sync.query_from_url(
-            url= urls[n],
-            query=prompt,
-            model='gpt-4o-mini',
-            response_language="en",
-            answer_type="text",
-
-        )
+        except Exception as e:
+            print(f"Error processing {url}: {e}")
+            outputs.append((None, None, None))
+            continue  
 
         time.sleep(5)
         
+        # Defensive check
+        if not isinstance(response, dict) or 'llm_response' not in response:
+            logging.warning(f"Malformed response for {url}")
+            outputs.append((None, None, None))
+            continue
+
         text = response.get("llm_response", "")
+
+        # getting rid of common gpt hallicination issues
+        text = text.replace("Press Release Body:", "").replace("Headline:", "")
+
         parts = text.split('\n', 1)
 
-        if len(parts) != 2:
-            # TODO: ADD LOG MESSAGE HERE
-            logging.info(f"Headline Wasnt Parsed Right")
-            outputs.append((None, None, None)) 
+        # Validate format
+        if len(parts) != 2 or not parts[0].strip() or not parts[1].strip():
+            logging.info(f"Headline or body was not parsed correctly for {url}")
+            outputs.append((None, None, None))
             continue
 
         # getting both the headline and body
@@ -146,7 +183,7 @@ def process_speeches(urls, is_test):
 
         today_date = get_body_date()
         press_release = f"WASHINGTON, {today_date} -- {body_raw.strip()}"
-        press_release += f"\n\n* * *\n\nView speech here: {urls[n]}"
+        press_release += f"\n\n* * *\n\nView speech here: {url}"
 
         # getting rid of stray input from gpt and turning all text into ASCII charectors for DB
         headline = clean_text(headline_raw)
@@ -156,16 +193,11 @@ def process_speeches(urls, is_test):
         press_release = cleanup_text(press_release)
         
         # making the filename for the speeches
-        filename = generate_filename(urls[n])
+        filename = generate_filename(url)
 
         # checking to make sure that output is correct
         if check_news_output(press_release) and check_news_output(headline):
-            
-            # append headline, press_release
-            if is_test:
-                outputs.append((filename, headline, press_release))
-            else:
-                outputs.append((filename, headline, press_release, urls[n][1]))
+            outputs.append((filename, headline, press_release))
 
         # if output is invalid, add none none none so that it is counted as skipped in summary email
         else:
@@ -183,7 +215,7 @@ def write_press_releases_to_csv(output_path, data):
 
     with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['filename', 'headline', 'press_release'])
+        writer.writerow(['filename', 'headline', 'Speech Output'])
 
         for filename, headline, press_release in data:
             writer.writerow([filename, headline, press_release])
