@@ -1,32 +1,32 @@
-AgencyName, Category, Url
-Global Justice Now [Sociological] (VNW), B,	https://www.globaljustice.org.uk/news/campaigners-urge-governments-to-stand-up-against-trumps-economic-warfare/
-Caribbean Community nr,	E ,https://caricom.org/message-of-condolence-passing-of-h-e-elma-gene-isaac-ambassador-of-saint-lucia-to-caricom-and-oecs/
-Consortium for Citizens with Disabilities [Disabilities], C, https://www.c-c-d.org/fichiers/CCD-Comments-on-LIHTC-Data-Collection.pdf
-American Hospital Association [Health Care] (VPR), B, 	https://www.aha.org/press-releases/2025-07-31-aha-statement-fy-2026-final-ipps-ltch-payment-rule
-America's Essential Hospitals [Health Care] (VPR), C, 	https://essentialhospitals.org/americas-essential-hospitals-responds-to-new-340b-rebate-pilot-program/
-Corporation for Public Broadcasting [Media] (VPR) RejCS(250702), B,	https://cpb.org/pressroom/CPB-Statement-US-Senate-Appropriations-Committee-Markup-2026-Labor-H-Appropriations-Bill
-American Council on Renewable Energy [Energy] (VPR), B, https://acore.org/news/acore-statement-on-introduction-of-bipartisan-permitting-reform-legislation/
-Smithsonian Institution: Tropical Research Institute (VNW),	https://stri.si.edu/story/stri-special-events-july-2025
-Department of the Treasury (VPR) RejCS(250519), A ,	https://home.treasury.gov/news/press-releases/sb0216
-National Minority Supplier Development Council [Business] (VPR), C, 	https://nmsdc.org/news/a-message-from-the-nmsdc-ceo-and-president-planting-seeds-of-change-four-year-anniversary-reflection/
-National Committee to Preserve Social Security and Medicare [Government/Public Administration] (VPR) RejCS(250712),	A, President Trump Must Denounce Bessent’s Talk of Privatizing Social Security
-Alliance for Excellent Education [Education] (VPR),	B, https://all4ed.org/press_release/all4ed-statement-on-the-cancellation-of-career-connected-high-schools-grant-program-funding/
-Council of the European Union/European Council (VPR) RejCC(250717),	C, https://www.consilium.europa.eu/en/press/press-releases/2025/07/30/statement-by-the-high-representative-on-behalf-of-the-eu-on-the-alignment-of-certain-countries-concerning-restrictive-measures-against-serious-human-rights-violations-and-abuses/
-International Federation of Red Cross and Red Crescent Societies [Sociological] (VPR), B, https://www.ifrc.org/press-release/ifrc-statement-palestine-conference-more-aid-must-reach-gaza-now
-National Association of Government Guaranteed Lenders [Financial Services] (VNW), C, https://www.naggl.org/a-note-from-naggls-president-july-30-2025/
-Alliance for Retired Americans [Sociological] (VPR), B,	https://retiredamericans.org/bessent-says-trump-accounts-are-backdoor-to-social-security-privatization/
-American Public Transportation Association [Transportation] (VPR), B, https://www.apta.com/news-publications/press-releases/releases/apta-statement-on-the-build-more-housing-near-transit-act-of-the-road-to-housing-act-of-2025/
-Chamber of Digital Commerce [Business],	B, https://digitalchamber.org/tdc-applauds-the-release-of-the-presidents-working-group-report/
-Securities and Exchange Commission: Speeches and Statements (VPRS) RejRB,	A, https://www.sec.gov/newsroom/speeches-statements/uyeda-statement-crypto-exchange-traded-products-072925
-U.S. Mission to the United Nations (VNW) (CCX25), A, https://usun.usmission.gov/remarks-at-a-un-security-council-briefing-on-united-nations-peace-operations/
-European Union: Delegation to the U.S. (VPR), A, https://ec.europa.eu/commission/presscorner/detail/en/statement_25_1915
-European Center for Constitutional and Human Rights [International] (VPR),	C, https://www.ecchr.eu/en/press-release/arrest-of-el-hishri-in-germany-a-breakthrough-for-international-justice/
-DairyNZ [Food/Beverage] (VPR),	A, https://www.dairynz.co.nz/news/when-dairy-does-well-nz-does-well/
-Third Way [Political] (VPR), A, https://www.thirdway.org/press/third-way-statement-on-the-reintroduction-of-the-college-transparency-act
-American Association of Gynecologic Laparoscopists [Medical], A, https://newsscope.aagl.org/volume-39-issue-7/time-to-standardize-a-call-to-action-for-fibroid-symptom-reporting/
-Salvation Army International [Sociological] vaa (VNW),	E, https://www.salvationarmy.org/news/international-salvation-army-calls-peace-and-goodwill
-American Fintech Council [Financial Services (VPR),	A, https://www.fintechcouncil.org/press-releases/statement-from-phil-goldfeder-ceo-of-the-american-fintech-council-afc-on-cfpbs-request-for-a-stay-in-open-banking-case-and-courts-decision-to-grant-the-request
-Care [Sociological] (VPR),	A, https://www.care.org/media-and-press/palestinians-are-suffering-a-manmade-famine-in-gaza/
-Center for Climate and Energy Solutions [Energy] (VPR),	A, https://www.c2es.org/press-release/nat-keohane-on-repeal-of-the-endangerment-finding-and-vehicle-standards/
-American Association of University Professors [Education] (VNW), C, https://www.aaup.org/news/doj-investigation-george-mason-attack-academic-freedom
-American Psychiatric Association [Psychiatry/Psychology] (VPR), E, https://www.psychiatry.org/News-room/News-Releases/Statement-from-Leading-Physician-Groups-on-USPSTF
+AgencyName|Author|Title|Url
+Global Justice Now [Sociological] (VNW)| Nick Dearden| NA|	https://www.globayyyyljustice.org.uk/news/campaigners-urge-governments-to-stand-up-against-trumps-economic-warfare/
+Caribbean Community| CARICOM Secretariat| Na| https://caricom.org/message-of-condolence-passing-of-h-e-elma-gene-isaac-ambassador-of-saint-lucia-to-caricom-and-oecs/
+Consortium for Citizens with Disabilities [Disabilities]| Allie Cannington| Co-Chair| https://www.c-c-d.org/fichiers/CCD-Comments-on-LIHTC-Data-Collection.pdf
+American Hospital Association [Health Care] (VPR)| Ashley Thompson| Senior Vice President|  https://www.aha.org/press-releases/2025-07-31-aha-statement-fy-2026-final-ipps-ltch-payment-rule
+America's Essential Hospitals [Health Care] (VPR)| Bruce Siegel|  MD, MPH President and CEO| https://essentialhospitals.org/americas-essential-hospitals-responds-to-new-340b-rebate-pilot-program/
+Corporation for Public Broadcasting [Media] (VPR) RejCS(250702)| Patricia Harrison|	President and CEO| https://cpb.org/pressroom/CPB-Statement-US-Senate-Appropriations-Committee-Markup-2026-Labor-H-Appropriations-Bill
+American Council on Renewable Energy [Energy] (VPR)| Ray Long | NA| https://acore.org/news/acore-statement-on-introduction-of-bipartisan-permitting-reform-legislation/
+Smithsonian Institution: Tropical Research Institute (VNW)|	NA| NA| https://stri.si.edu/story/stri-special-events-july-2025
+Department of the Treasury (VPR) RejCS(250519)| Scott Bessent |	Secretary| https://home.treasury.gov/news/press-releases/sb0216
+National Minority Supplier Development Council [Business] (VPR)| Ying McGuire| CEO and President| https://nmsdc.org/news/a-message-from-the-nmsdc-ceo-and-president-planting-seeds-of-change-four-year-anniversary-reflection/
+National Committee to Preserve Social Security and Medicare [Government/Public Administration] (VPR) RejCS(250712)|	NA| Na|  President Trump Must Denounce Bessent’s Talk of Privatizing Social Security
+Alliance for Excellent Education [Education] (VPR)|	Enrique A. Chaurand| Na| https://all4ed.org/press_release/all4ed-statement-on-the-cancellation-of-career-connected-high-schools-grant-program-funding/
+Council of the European Union/European Council (VPR) RejCC(250717)|	NA| NA|  https://www.consilium.europa.eu/en/press/press-releases/2025/07/30/statement-by-the-high-representative-on-behalf-of-the-eu-on-the-alignment-of-certain-countries-concerning-restrictive-measures-against-serious-human-rights-violations-and-abuses/
+International Federation of Red Cross and Red Crescent Societies [Sociological] (VPR)| Andrea Canepa| Humanitarian Affairs Advisor| https://www.ifrc.org/press-release/ifrc-statement-palestine-conference-more-aid-must-reach-gaza-now
+National Association of Government Guaranteed Lenders [Financial Services] (VNW)| Tony Wilkinson| President and CEO| https://www.naggl.org/a-note-from-naggls-president-july-30-2025/
+Alliance for Retired Americans [Sociological] (VPR)| Richard Fiesta| Executive Director | https://retiredamericans.org/bessent-says-trump-accounts-are-backdoor-to-social-security-privatization/
+American Public Transportation Association [Transportation] (VPR)| Paul P. Skoutelas| President and CEO| https://www.apta.com/news-publications/press-releases/releases/apta-statement-on-the-build-more-housing-near-transit-act-of-the-road-to-housing-act-of-2025/
+Chamber of Digital Commerce [Business]|	NA| NA| https://digitalchamber.org/tdc-applauds-the-release-of-the-presidents-working-group-report/
+Securities and Exchange Commission: Speeches and Statements (VPRS) RejRB| Mark T. Uyeda| Commissioner | https://www.sec.gov/newsroom/speeches-statements/uyeda-statement-crypto-exchange-traded-products-072925
+U.S. Mission to the United Nations (VNW) (CCX25)| John Kelley| Acting U.S. Representative| https://usun.usmission.gov/remarks-at-a-un-security-council-briefing-on-united-nations-peace-operations/
+European Union: Delegation to the U.S. (VPR)| von der Leyen | President | https://ec.europa.eu/commission/presscorner/detail/en/statement_25_1915
+European Center for Constitutional and Human Rights [International] (VPR)|	NA| Na| https://www.ecchr.eu/en/press-release/arrest-of-el-hishri-in-germany-a-breakthrough-for-international-justice/
+DairyNZ [Food/Beverage] (VPR)| Tracy Brown| NA|  https://www.dairynz.co.nz/news/when-dairy-does-well-nz-does-well/
+Third Way [Political] (VPR)| Michelle Dimino| Director of Education| https://www.thirdway.org/press/third-way-statement-on-the-reintroduction-of-the-college-transparency-act
+American Association of Gynecologic Laparoscopists [Medical]| Scott Chudnoff| Chair of the AAGL Fibroids Special Interest Group | https://newsscope.aagl.org/volume-39-issue-7/time-to-standardize-a-call-to-action-for-fibroid-symptom-reporting/
+Salvation Army International [Sociological] vaa (VNW)|	NA| NA| https://www.salvationarmy.org/news/international-salvation-army-calls-peace-and-goodwill
+American Fintech Council [Financial Services (VPR)|	Phil Goldfeder| CEO| https://www.fintechcouncil.org/press-releases/statement-from-phil-goldfeder-ceo-of-the-american-fintech-council-afc-on-cfpbs-request-for-a-stay-in-open-banking-case-and-courts-decision-to-grant-the-request
+Care [Sociological] (VPR)|	Jolien Veldwijk| Palestine Country Director| https://www.care.org/media-and-press/palestinians-are-suffering-a-manmade-famine-in-gaza/
+Center for Climate and Energy Solutions [Energy] (VPR)|	Nathaniel Keohane| President| https://www.c2es.org/press-release/nat-keohane-on-repeal-of-the-endangerment-finding-and-vehicle-standards/
+American Association of University Professors [Education] (VNW)| Todd Wolfson| President| https://www.aaup.org/news/doj-investigation-george-mason-attack-academic-freedom
+American Psychiatric Association [Psychiatry/Psychology] (VPR)| NA| NA| https://www.psychiatry.org/News-room/News-Releases/Statement-from-Leading-Physician-Groups-on-USPSTF

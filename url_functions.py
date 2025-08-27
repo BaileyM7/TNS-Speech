@@ -37,28 +37,39 @@ def extract_clean_agency_name(raw_name):
 def parse_csv(file_path):
     results = []
     with open(file_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile, skipinitialspace=True)
+        reader = csv.DictReader(csvfile, delimiter='|', skipinitialspace=True)
 
         # Strip leading/trailing whitespace from header field names
         reader.fieldnames = [field.strip() for field in reader.fieldnames]
 
         for row in reader:
+            # Skip completely empty or malformed rows
+            if row is None or not any(row.values()):
+                continue
+
             raw_agency = row.get('AgencyName', '').strip()
             author = row.get('Author', '').strip()
+            title = row.get('Title', '').strip()  # <-- New column
             url = row.get('Url', '').strip()
 
-            if not author or author.upper() == 'NA':
-                results.append((None, None, None))
+            # Skip invalid author/title values
+            if not author or author.upper() == 'NA' or not title or title.upper() == 'NA':
+                results.append((None, None, None, None))
                 continue
 
+            # Skip invalid URL
             if not is_valid_url(url):
-                results.append((None, None, None))
+                results.append((None, None, None, None))
                 continue
 
+            # Clean agency name
             agency = extract_clean_agency_name(raw_agency)
-            results.append((agency, author, url))
+
+            # Append title between agency and url
+            results.append((agency, author, title, url))
 
     return results
+
 
 # makes the date that goes after "WASHINGTON --"
 def get_body_date():
@@ -110,13 +121,13 @@ def process_speeches(results, is_test):
     outputs = []
 
     # Process each (agency, author, url) tuple
-    for agency, author, url in results:
+    for agency, author, title, url in results:
         if not agency or not author or not url:
             continue  # Skip invalid entries
 
         # Dynamically insert agency and author into the rules for better grounding
         prompt = f"""
-        Write a 300-word press release based on a speech delivered by {author} from {agency}. Follow these rules:
+        Write a press release based on a speech delivered by {author} from {agency}. Follow these rules:
 
         Headline:
         - Write a single-line headline.
@@ -124,7 +135,7 @@ def process_speeches(results, is_test):
 
         Press Release Body:
         - The first sentence must begin exactly like this (replacing with the real values):
-        “{agency}'s {author} issued the following statement,”
+        “{agency} {title} {author} issued the following statement,”
         - This sentence must **flow directly into the paragraph**, not be isolated on its own line.
         - Do NOT include any introductory lines such as “FOR IMMEDIATE RELEASE,” “CONTACT,” or press contact info.
         - Do NOT include any datelines like “Washington, D.C.” or any location unless it appears in the speech.
@@ -140,6 +151,9 @@ def process_speeches(results, is_test):
         Input Information:
         Speaker Name: {author}
         Agency: {agency}
+        Title: {title}
+
+        Analyze the length of the speech text. Then, write a press release that is approximately **half the word count** of the speech.
         """
 
         try:
