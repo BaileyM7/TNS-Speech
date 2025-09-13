@@ -1,13 +1,17 @@
 import re
+import os
 import csv
 import time
 import logging
 import platform
+import requests
 from openai import OpenAI
+from dotenv import load_dotenv
 from datetime import datetime
 from urllib.parse import urlparse
 from cleanup_text import cleanup_text, clean_text
 from openperplex import OpenperplexSync
+
 
 
 # gets the api keys
@@ -113,38 +117,140 @@ def check_news_output(output):
     
     return True
 
+# clean up the agency name for certain TNS required edge cases
+def clean_up_agency (s: str) -> str:
+    # edge case to prevent 'Commision Commissioner'
+    if s == "Securities and Exchange Commission":
+        return "Securities and Exchange"
+    else: 
+        return s
+    
+
+# returns the last name of the author
+def get_last_name(full_name: str) -> str:
+    """
+    Extracts and returns the last name from a full name string.
+    
+    :param full_name: A string containing the full name of a person.
+    :return: The last name as a string.
+    """
+    parts = full_name.strip().split()
+    return parts[-1] if parts else None
+
+# getting classifying text for the begging and ending part of the body text
+def classify_text(text: str) -> str:
+    """
+    Classify the given text as 'statement', 'speech', or 'letter'
+    based on keyword counts.
+
+    :param text: The body of the text to classify
+    :return: 'statement', 'speech', or 'letter'
+    """
+    lower_text = text.lower()
+
+    # Keyword lists
+    statement_keywords = ["statement", "press release", "announces", "stated"]
+    speech_keywords = ["speech", "audience", "applause", "honor", "address", "gathered"]
+    letter_keywords = ["letter", "sincerely", "dear", "yours truly", "regards", "faithfully"]
+
+    # Counter dictionary
+    counts = {"statement": 0, "speech": 0, "letter": 0}
+
+    # Count occurrences for each category
+    for word in statement_keywords:
+        if word in lower_text:
+            counts["statement"] += 1
+    for word in speech_keywords:
+        if word in lower_text:
+            counts["speech"] += 1
+    for word in letter_keywords:
+        if word in lower_text:
+            counts["letter"] += 1
+
+    # Pick the category with the most matches
+    classification = max(counts, key=counts.get)
+
+    return classification
+
+# gets the text from the specific url 
+def get_url_text(url: str) -> str:
+    """
+    Fetches the cleaned website text from a given URL using the OpenPerplex API.
+
+    :param url: The URL to fetch text from.
+    :return: The cleaned text content as a string, or "" if error.
+    """
+    api_key = os.getenv("OPENPERPLEX_API_KEY")
+    if not api_key:
+        logging.error("OPENPERPLEX_API_KEY environment variable not set")
+        return ""
+
+    try:
+        response = requests.get(
+            "https://node.apiopenperplex.com/get_website_text",
+            headers={"X-API-Key": api_key},
+            params={"url": url},
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        # The API returns JSON, so check if it has "text"
+        if isinstance(data, dict) and "text" in data:
+            return data["text"]
+
+        logging.warning(f"No 'text' field in API response for URL {url}: {data}")
+        return ""
+    except Exception as e:
+        logging.error(f"Error fetching text from {url}: {e}")
+        return ""
 
 # proccesses each url and returns a header and body text
 def process_speeches(results, is_test):
     from openperplex import OpenperplexSync  # Assuming this is your client
     client_sync = OpenperplexSync(getKey())
     outputs = []
+    openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+    
     # Process each (agency, author, url) tuple
     for agency, author, title, url in results:
         if not agency or not author or not url:
             continue  # Skip invalid entries
+        
+        # grabbing last name and cleaned agency name
+        last_name = get_last_name(author)
+        agency = clean_up_agency(agency)
+
+        # checking if get_last_name ran correctly
+        if last_name is None:
+            continue
+            
+        # getting text for the specific url
+        raw_text = get_url_text(url)
+        # getting the classifier from the text (whether its a speech, letter, or statement)
+        classifier = classify_text(raw_text)
 
         # Dynamically insert agency and author into the rules for better grounding
         prompt = f"""
-        Write a press release based on a speech delivered by {author} from {agency}. Follow these rules:
+        Write a press release based on a {classifier} delivered by {author} from {agency}. Follow these rules:
 
         Headline:
         - Write a single-line headline.
-        - It must include the speaker’s full name and the **abbreviated agency name** (e.g., "SEC" instead of "Securities and Exchange Commission").
+        - It must include the speaker’s full name: {last_name} and the **abbreviated agency name** (e.g., "SEC" instead of "Securities and Exchange Commission").
 
         Press Release Body:
         - The first sentence must begin exactly like this (replacing with the real values):
-        “{agency} {title} {author} issued the following statement,”
+        “{agency} {title} {author} issued the following {classifier},”
         - This sentence must **flow directly into the paragraph**, not be isolated on its own line.
         - Do NOT include any introductory lines such as “FOR IMMEDIATE RELEASE,” “CONTACT,” or press contact info.
-        - Do NOT include any datelines like “Washington, D.C.” or any location unless it appears in the speech.
+        - Do NOT include any datelines like “Washington, D.C.” or any location unless it appears in the {classifier}.
         - Abbreviate “United States” as “U.S.” unless it is part of an official name.
-        - After the first sentence, summarize the speech’s key points clearly and professionally.
+        - After the first sentence, summarize the {classifier}'s key points clearly and professionally.
         - The speaker may only be named in the first paragraph.
 
         - Write two to three structured paragraphs total.
-        - Each paragraph must include at least one **direct quote** from the speech.
+        - Each paragraph must include at least one **direct quote** from the {classifier}.
         - Do not reuse the speaker’s name or title after the first sentence.
         - Maintain a clean, professional tone and avoid bullet points, headers, or section labels.
 
@@ -152,18 +258,22 @@ def process_speeches(results, is_test):
         Speaker Name: {author}
         Agency: {agency}
         Title: {title}
+        Text: {raw_text}
 
-        Analyze the length of the speech text. Then, write a press release that is approximately **half the word count** of the speech.
+        Analyze the length of the {classifier} text. Then, write a press release that is approximately **half the word count** of the speech.
+
+        Return the press release in the following format exactly:
+
+        HEADLINE: <your headline here>
+        BODY: <your press release body here>
         """
 
         try:
-            response = client_sync.query_from_url(
-                url=url,
-                query=prompt,
-                model='gpt-4o-mini',
-                response_language="en",
-                answer_type="text",
+            response = openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
             )
+            text = response.choices[0].message.content.strip()
 
         except Exception as e:
             print(f"Error processing {url}: {e}")
@@ -171,33 +281,32 @@ def process_speeches(results, is_test):
             continue  
 
         time.sleep(5)
-        
-        # Defensive check
-        if not isinstance(response, dict) or 'llm_response' not in response:
-            logging.warning(f"Malformed response for {url}")
-            outputs.append((None, None, None))
-            continue
 
-        text = response.get("llm_response", "")
+        headline_match = re.search(r"HEADLINE:\s*(.+)", text, re.IGNORECASE)
+        body_match = re.search(r"BODY:\s*(.+)", text, re.IGNORECASE | re.DOTALL)
 
-        # getting rid of common gpt hallicination issues
-        text = text.replace("Press Release Body:", "").replace("Headline:", "")
+        headline_raw = headline_match.group(1).strip() if headline_match else None
+        body_raw = body_match.group(1).strip() if body_match else None
 
-        parts = text.split('\n', 1)
+        # # getting rid of common gpt hallicination issues
+        # text = text.replace("Press Release Body:", "").replace("Headline:", "")
 
-        # Validate format
-        if len(parts) != 2 or not parts[0].strip() or not parts[1].strip():
-            logging.info(f"Headline or body was not parsed correctly for {url}")
-            outputs.append((None, None, None))
-            continue
+        # parts = text.split('\n', 1)
 
-        # getting both the headline and body
-        headline_raw = parts[0]
-        body_raw = parts[1]
+
+        # # Validate format
+        # if len(parts) != 2 or not parts[0].strip() or not parts[1].strip():
+        #     logging.info(f"Headline or body was not parsed correctly for {url}")
+        #     outputs.append((None, None, None))
+        #     continue
+
+        # # getting both the headline and body
+        # headline_raw = parts[0]
+        # body_raw = parts[1]
 
         today_date = get_body_date()
         press_release = f"WASHINGTON, {today_date} -- {body_raw.strip()}"
-        press_release += f"\n\n* * *\n\nView speech here: {url}"
+        press_release += f"\n\n* * *\n\nView {classifier} here: {url}"
 
         # getting rid of stray input from gpt and turning all text into ASCII charectors for DB
         headline = clean_text(headline_raw)

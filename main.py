@@ -9,23 +9,6 @@ from email_utils import send_summary_email
 from url_functions import getKey, parse_csv, process_speeches, write_press_releases_to_csv
 from db_functions import get_db_connection, get_121_speech_urls, insert_press_release
 
-"""
-Author: Bailey Malota
-Last Updated: Aug 4 2025
-"""
-
-"""
-Each Speech is packaged with its AgencyName, Category, and URL
-
-The category reffers to the location of where the authors name is located.
-
-Category Labels:
-
-A: The author's name is in the header
-B: The author's name is in the body text
-C: The author's name is in the end of the text
-E: No Author available
-"""
 # getting the api key
 client = OpenAI(api_key=getKey())
 
@@ -111,7 +94,7 @@ def main(argv):
     elapsed = str(end_time - start_time).split('.')[0]
 
     summary = f"""
-    Load Version 1.0.6 08/27/2025
+    Load Version 1.0.7 09/13/2025
 
     Passed Parameters: {' -t' if test_run else ''} {' -p' if production_run else ''}
 
